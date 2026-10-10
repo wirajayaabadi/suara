@@ -1,0 +1,124 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "../styles/tokens.css";
+
+@theme inline {
+  /* Tipografi — dimuat lewat next/font di layout.tsx */
+  --font-sans: var(--font-jakarta);
+  --font-heading: var(--font-poppins);
+  --font-display: var(--font-poppins);
+  --font-mono: var(--font-jetbrains);
+
+  /* Semantik (dipakai komponen shadcn/ui) */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-outer: var(--ring-outer);
+  --color-link: var(--link);
+
+  /* Primitif merek P3MD (dok. 06) */
+  --color-navy-950: var(--navy-950);
+  --color-navy-900: var(--navy-900);
+  --color-navy-800: var(--navy-800);
+  --color-navy-750: var(--navy-750);
+  --color-navy-700: var(--navy-700);
+  --color-navy-600: var(--navy-600);
+  --color-navy-400: var(--navy-400);
+  --color-navy-300: var(--navy-300);
+  --color-navy-ink-muted: var(--navy-ink-muted);
+  --color-ink-border: var(--ink-border);
+  --color-gold-800: var(--gold-800);
+  --color-gold-700: var(--gold-700);
+  --color-gold-600: var(--gold-600);
+  --color-gold-500: var(--gold-500);
+  --color-gold-400: var(--gold-400);
+  --color-gold-300: var(--gold-300);
+  --color-gold-hover: var(--gold-hover);
+  --color-gold-200: var(--gold-200);
+  --color-gold-100: var(--gold-100);
+  --color-ivory-50: var(--ivory-50);
+  --color-ivory-100: var(--ivory-100);
+  --color-ivory-200: var(--ivory-200);
+  --color-maroon-700: var(--maroon-700);
+  --color-field-disabled: var(--field-disabled);
+
+  /* Peta isometrik (dok. 06 §4.5) */
+  --color-wb-atap: var(--wb-atap);
+  --color-wb-atap-hover: var(--wb-atap-hover);
+  --color-wb-kiri: var(--wb-kiri);
+  --color-wb-kanan: var(--wb-kanan);
+  --color-asp-atap: var(--asp-atap);
+  --color-asp-atap-hover: var(--asp-atap-hover);
+  --color-asp-kiri: var(--asp-kiri);
+  --color-asp-kanan: var(--asp-kanan);
+  --color-wb-atap-redup: var(--wb-atap-redup);
+  --color-wb-kiri-redup: var(--wb-kiri-redup);
+  --color-wb-kanan-redup: var(--wb-kanan-redup);
+  --color-asp-atap-redup: var(--asp-atap-redup);
+  --color-asp-kiri-redup: var(--asp-kiri-redup);
+  --color-asp-kanan-redup: var(--asp-kanan-redup);
+  --color-peta-outline: var(--peta-outline);
+  --color-peta-tanah: var(--peta-tanah);
+
+  /* Status */
+  --color-ok: var(--status-ok-fg);
+  --color-ok-bg: var(--status-ok-bg);
+  --color-warn: var(--status-warn-fg);
+  --color-warn-bg: var(--status-warn-bg);
+  --color-err: var(--status-err-fg);
+  --color-err-bg: var(--status-err-bg);
+  --color-info: var(--status-info-fg);
+  --color-info-bg: var(--status-info-bg);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/* Gerak global: hormati preferensi pengguna. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

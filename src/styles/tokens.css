@@ -1,0 +1,119 @@
+/*
+ * Design tokens — sumber tunggal warna (docs/perencanaan/06-palet-warna-p3md.md).
+ * Komponen tidak boleh memakai HEX langsung; gunakan token di bawah atau kelas Tailwind
+ * yang dipetakan di globals.css. Canvas membaca nilai ini lewat getComputedStyle.
+ */
+
+:root {
+  /* Primitif — sumber logo P3MD (diverifikasi dok. 06 §2.0) */
+  --navy-900: #021e39;
+  --gold-500: #dca752;
+  --gold-300: #dab25f;
+  --ivory-100: #f0e2c5;
+  --maroon-700: #89161d;
+
+  /* Primitif — turunan */
+  --navy-950: #010f1e;
+  --navy-800: #0b2f52;
+  --navy-760: #1b3f66;
+  --navy-750: #123b63;
+  --navy-700: #345b85;
+  --navy-600: #4a78a6;
+  --navy-400: #6f94bf;
+  --navy-300: #b9c3cf;
+  --navy-ink-muted: #4b5e73;
+  --ink-border: #5f6f82;
+  --gold-800: #7a4f0c;
+  --gold-700: #94651a;
+  --gold-600: #c58e32;
+  --gold-400: #e9be6f;
+  --gold-hover: #e6b96a;
+  --gold-200: #efd39b;
+  --gold-100: #f3e3bc;
+  --ivory-50: #fbf6ea;
+  --ivory-200: #d9cbaa;
+  --ground-200: #e3d6b8;
+  --maroon-300: #e58a8f;
+  --field-disabled: #efe9d9;
+
+  /* Status — terpisah dari warna merek (dok. 06 §5.3) */
+  --status-ok-fg: #1d6b43;
+  --status-ok-bg: #e3f2e8;
+  --status-warn-fg: #7a4f0c;
+  --status-warn-bg: #fbebc8;
+  --status-err-fg: #b42318;
+  --status-err-bg: #fce8e4;
+  --status-info-fg: #1f5c99;
+  --status-info-bg: #e4eef9;
+
+  /* Peta isometrik (dok. 06 §4.5) */
+  --wb-atap: var(--navy-400);
+  --wb-kiri: var(--navy-700);
+  --wb-kanan: var(--navy-760);
+  --asp-atap: var(--gold-400);
+  --asp-kiri: var(--gold-600);
+  --asp-kanan: var(--gold-700);
+  /* Atap saat hover: +8% ke arah putih, nilai tetap (bukan color-mix) */
+  --wb-atap-hover: #7a9dc4;
+  --asp-atap-hover: #ebc37a;
+  /* Balok yang diredupkan saat ada pilihan: 45% warna + 55% ivory-50, tetap opak
+     agar balok tidak tembus pandang (dok. 06 §4.5 “redup pada saturasi”) */
+  --wb-atap-redup: #bccad7;
+  --wb-kiri-redup: #a1b0bd;
+  --wb-kanan-redup: #96a4af;
+  --asp-atap-redup: #f3ddb3;
+  --asp-kiri-redup: #e3c797;
+  --asp-kanan-redup: #cdb58c;
+  --peta-outline: var(--navy-950);
+  --peta-tanah: var(--ground-200);
+
+  /* Semantik — varian terang (form, panel, halaman informasi, dashboard) */
+  --background: var(--ivory-50);
+  --foreground: var(--navy-900);
+  --card: #ffffff;
+  --card-foreground: var(--navy-900);
+  --popover: #ffffff;
+  --popover-foreground: var(--navy-900);
+  --primary: var(--navy-900);
+  --primary-foreground: var(--ivory-50);
+  --secondary: var(--gold-100);
+  --secondary-foreground: var(--gold-800);
+  --muted: var(--ivory-100);
+  --muted-foreground: var(--navy-ink-muted);
+  --accent: var(--ivory-100);
+  --accent-foreground: var(--navy-900);
+  --destructive: var(--status-err-fg);
+  --border: var(--ivory-200);
+  --input: var(--ink-border);
+  --ring: var(--navy-900);
+  --ring-outer: var(--gold-500);
+  --link: var(--navy-700);
+  --orbit: color-mix(in srgb, var(--gold-500) 22%, transparent);
+  --brand-accent: var(--maroon-700);
+  --radius: 0.625rem;
+}
+
+/* Semantik — varian gelap (beranda, header peta). Dipasang per bagian, bukan global. */
+.tema-malam {
+  --background: var(--navy-900);
+  --foreground: var(--ivory-100);
+  --card: var(--navy-800);
+  --card-foreground: var(--ivory-100);
+  --popover: var(--navy-950);
+  --popover-foreground: var(--ivory-50);
+  --primary: var(--ivory-100);
+  --primary-foreground: var(--navy-900);
+  --secondary: var(--gold-500);
+  --secondary-foreground: var(--navy-900);
+  --muted: var(--navy-800);
+  --muted-foreground: var(--navy-300);
+  --accent: var(--navy-750);
+  --accent-foreground: var(--ivory-50);
+  --border: var(--navy-600);
+  --input: var(--ivory-200);
+  --ring: var(--gold-500);
+  --ring-outer: var(--ivory-100);
+  --link: var(--gold-500);
+  background-color: var(--background);
+  color: var(--foreground);
+}
