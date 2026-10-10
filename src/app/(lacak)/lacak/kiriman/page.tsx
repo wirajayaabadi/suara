@@ -121,7 +121,8 @@ function Kiriman({ k }: { k: KirimanPengirim }) {
 
       {k.dataContoh && (
         <p className="rounded-lg border-2 border-dashed border-warn bg-warn-bg px-3 py-2 text-sm font-semibold text-warn">
-          CONTOH — data sintetis. Balasan, lampiran, dan penarikan izin hanya berlaku selama sesi ini dan tidak disimpan.
+          CONTOH — data sintetis. Balasan, lampiran, dan penarikan izin tidak disimpan dan dapat hilang saat halaman dimuat
+          ulang.
         </p>
       )}
 

@@ -26,8 +26,12 @@ let kunciProses: Buffer | null = null;
 function kunci(): Buffer {
   const rahasia = process.env.SESI_PELACAKAN_RAHASIA;
   if (rahasia && rahasia.length >= 32) return createHash("sha256").update(rahasia).digest();
+  if (rahasia) throw new Error("SESI_PELACAKAN_RAHASIA terlalu pendek (minimal 32 karakter).");
+  // Vercel menjalankan beberapa instance: kunci acak per proses membuat sesi yang disegel di
+  // satu instance ditolak instance lain (dok. 07 K4). Hanya boleh untuk satu proses lokal.
+  if (process.env.VERCEL) throw new Error("SESI_PELACAKAN_RAHASIA wajib diisi di Vercel (≥ 32 karakter).");
   if (sumberData() === "contoh") {
-    // Prototipe: kunci acak per proses. Sesi hilang saat server dimulai ulang.
+    // Lokal: kunci acak per proses. Sesi hilang saat server dimulai ulang.
     kunciProses ??= randomBytes(32);
     return kunciProses;
   }

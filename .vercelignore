@@ -1,0 +1,7 @@
+# Tidak diunggah ke Vercel saat deploy lewat CLI (artefak lokal).
+.next
+node_modules
+test-results
+playwright-report
+*.tsbuildinfo
+.env*

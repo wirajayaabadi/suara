@@ -1,4 +1,5 @@
 import "server-only";
+import { pilihSumberData } from "@/lib/sumber-data";
 import { cacheLife, cacheTag } from "next/cache";
 import { agregasiPeta, itemBlok, type FilterPeta } from "@/features/peta/model/agregasi";
 import { saringDaftar, type ParamDaftar } from "@/features/konten/model/daftar";
@@ -15,23 +16,19 @@ import {
  * DAL publik (dok. 03 §8.3, dok. 05 §5.5). Satu-satunya pintu data untuk halaman dan
  * endpoint publik. Semua keluaran di-parse dengan skema `.strict()` sebelum dikembalikan.
  *
- * Sumber data:
- * - `DATA_CONTOH=1` → data contoh sintetis (skenario dari `DATA_CONTOH_SKENARIO`).
- * - Mode pengembangan (`next dev`) memakai data contoh secara bawaan.
- * - Produksi tanpa `DATA_CONTOH=1` → basis data (belum dibangun; melempar galat).
+ * Sumber data dipilih oleh `pilihSumberData()` (lib/sumber-data.ts): data contoh selama basis
+ * data belum dikonfigurasi, atau bila dipaksa `DATA_CONTOH=1`.
  */
 
-export type SumberData = "contoh" | "basis-data";
+export type { SumberData } from "@/lib/sumber-data";
 
-export function sumberData(): SumberData {
-  if (process.env.DATA_CONTOH === "1") return "contoh";
-  if (process.env.DATA_CONTOH === "0") return "basis-data";
-  return process.env.NODE_ENV === "production" ? "basis-data" : "contoh";
+export function sumberData() {
+  return pilihSumberData();
 }
 
 async function konteks() {
   if (sumberData() !== "contoh") {
-    throw new Error("Sumber data publik (basis data) belum dikonfigurasi. Set DATA_CONTOH=1 untuk prototipe.");
+    throw new Error("Sumber data publik: basis data belum dibangun. Hapus DATA_CONTOH=0 atau DATABASE_URL_PUBLIC untuk memakai data contoh.");
   }
   // Impor dinamis: modul data contoh hanya dimuat saat benar-benar dipakai.
   const { dataContoh, SKENARIO, TANGGAL_ACUAN_CONTOH } = await import("@/server/data-contoh/konten-publik");

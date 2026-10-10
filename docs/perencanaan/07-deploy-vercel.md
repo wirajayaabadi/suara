@@ -34,8 +34,8 @@ Hasil pemeriksaan kode per 10 Okt 2026:
 |---|---|---|---|---|
 | K1 | Next.js 16.4 + Cache Components + Partial Prerendering | ✅ Didukung penuh | Vercel menjalankan PPR, `'use cache'`, `cacheTag`, dan Server Actions secara native | — |
 | K2 | Font di-self-host lewat `next/font` | ✅ | Tidak ada permintaan ke Google saat runtime | — |
-| K3 | Build gagal tanpa `DATA_CONTOH=1` (disengaja, belum ada DB) | ⚠️ | Build Vercel gagal bila env ini tidak diset | Set `DATA_CONTOH=1` di Tahap A–B saja |
-| K4 | Kunci segel sesi pelacakan: **acak per proses** bila `SESI_PELACAKAN_RAHASIA` kosong (mode contoh) | ❌ **Harus diperbaiki** | Vercel menjalankan beberapa instance. Login di instance A, permintaan berikutnya di instance B → sesi dianggap tidak sah, pengguna “terlempar keluar” acak | Wajibkan `SESI_PELACAKAN_RAHASIA` bila `process.env.VERCEL` ada, walau mode contoh. Set di semua lingkungan. |
+| K3 | Sumber data | ✅ Diubah 10 Okt 2026 | Data contoh dipakai otomatis selama `DATABASE_URL_PUBLIC` kosong (sebelumnya build gagal tanpa `DATA_CONTOH=1`, sehingga `npm run build` biasa tidak pernah lulus). Build mengumumkan “ⓘ Sumber data: DATA CONTOH”. `DATA_CONTOH=0` memaksa basis data | Saat go-live: isi `DATABASE_URL_PUBLIC` → beralih otomatis. Pastikan baris “DATA CONTOH” **tidak** muncul di log build produksi |
+| K4 | Kunci segel sesi pelacakan: **acak per proses** bila `SESI_PELACAKAN_RAHASIA` kosong (mode contoh) | ✅ Diperbaiki (§5.1) | Vercel menjalankan beberapa instance. Login di instance A, permintaan berikutnya di instance B → sesi dianggap tidak sah, pengguna “terlempar keluar” acak | Wajibkan `SESI_PELACAKAN_RAHASIA` bila `process.env.VERCEL` ada, walau mode contoh. Set di semua lingkungan. |
 | K5 | Pembatas percobaan masuk (`server/pelacakan/batas.ts`) di memori proses | ❌ untuk produksi | Hitungan tidak dibagi antar-instance → brute force tidak efektif dibatasi | Tahap A: terima (prototipe). Tahap C: pindah ke Redis/Postgres + aturan WAF (§7.3) |
 | K6 | Kunci idempotensi kirim (`formulir/aksi.ts`) di memori | ❌ untuk produksi | Klik ganda yang mendarat di instance berbeda bisa membuat dua kiriman | Tahap C: simpan di DB (kolom unik) |
 | K7 | Perubahan pengirim di pelacakan contoh (balasan, lampiran, tarik izin) di memori per sesi | ⚠️ | Balasan bisa “hilang” setelah refresh bila pindah instance | Tahap A: jelaskan di banner CONTOH, atau simpan di cookie tersegel. Hilang sendiri setelah backend nyata |
@@ -43,7 +43,7 @@ Hasil pemeriksaan kode per 10 Okt 2026:
 | K9 | CSP belum ada | ❌ untuk produksi | — | Lihat keputusan D5: CSP **nonce tidak kompatibel dengan PPR** |
 | K10 | Proyek **bukan repositori Git** | ❌ | Integrasi Git Vercel (preview per PR) butuh repo | Tahap A boleh lewat CLI; Tahap B wajib Git |
 | K11 | Uji E2E menjalankan build lokal (`playwright.config.ts`) | ✅ | Dipakai di CI sebelum deploy | Tambah workflow CI (§5) |
-| K12 | Node `>=20.9` (syarat Next 16) | ✅ | Pilih Node 22.x atau 24.x di pengaturan proyek | Tambah `"engines"` di `package.json` agar eksplisit |
+| K12 | Node `>=20.9` (syarat Next 16) | ✅ | Pilih Node 22.x atau 24.x di pengaturan proyek | `"engines"` sudah ditambahkan |
 | K13 | Unggah lampiran sungguhan belum ada | — | **Batas body function Vercel 4,5 MB**; lampiran 10 MB tidak bisa lewat function | Sesuai rencana 03: unggah langsung ke storage dengan URL bertanda tangan |
 
 ---
@@ -105,13 +105,15 @@ Halaman statis tetap dilayani dari CDN global (PoP terdekat pengguna). Yang berj
 
 Tujuan: URL yang bisa dibuka pemangku kepentingan untuk meninjau UI, **tanpa** risiko kiriman sungguhan.
 
-### 5.1 Perubahan kode kecil sebelum deploy
+### 5.1 Perubahan kode kecil sebelum deploy — ✅ selesai 10 Okt 2026
 
-1. **K4 — wajibkan secret sesi di Vercel.** Di `src/server/pelacakan/sesi.ts`, kunci acak per proses hanya boleh dipakai bila `process.env.VERCEL` tidak ada (lokal). Di Vercel tanpa `SESI_PELACAKAN_RAHASIA` → lempar galat yang jelas.
-2. **K12** — tambahkan `"engines": { "node": ">=20.9" }` di `package.json`.
-3. Tambah `vercel.json` dengan `regions: ["sin1"]` (§4.2).
-4. **K7** — perjelas banner CONTOH di `/lacak/kiriman`: perubahan bisa hilang saat halaman dimuat ulang.
-5. Uji: `npm run lint`, `npx tsc --noEmit`, `npm run test:unit`, `npm run test:e2e`.
+1. ✅ **K4 — wajibkan secret sesi di Vercel.** `src/server/pelacakan/sesi.ts` hanya memakai kunci acak per proses bila tidak berjalan di Vercel. Diuji dengan dua server produksi berdampingan: dengan secret bersama, sesi dari instance A diterima instance B; tanpa secret, ditolak.
+2. ✅ **Build gagal cepat** di Vercel (`VERCEL=1`) bila `SESI_PELACAKAN_RAHASIA` (≥ 32 karakter) atau `TRACKING_PEPPER` belum diisi — pemeriksaan di `next.config.ts` dengan pesan yang menunjuk ke §9. Sumber data mengikuti K3.
+3. ✅ **K12** — `"engines": { "node": ">=20.9" }` di `package.json`.
+4. ✅ `vercel.json` dengan `regions: ["sin1"]` (§4.2) dan `.vercelignore` untuk artefak lokal.
+5. ✅ **K7** — banner CONTOH di `/lacak/kiriman` menyebut perubahan dapat hilang saat dimuat ulang.
+6. ✅ `.gitignore` mengabaikan `test-results` dan `playwright-report` (persiapan Tahap B).
+7. ✅ Uji: lint, `tsc --noEmit`, 11 uji unit, 54 uji E2E lulus.
 
 ### 5.2 Langkah
 
@@ -120,7 +122,7 @@ Tujuan: URL yang bisa dibuka pemangku kepentingan untuk meninjau UI, **tanpa** r
 | 1 | Buat tim Vercel Pro atas nama organisasi (D2, D3), aktifkan 2FA | — |
 | 2 | **Atur Deployment Protection dulu**: All Deployments + Vercel Authentication | Dilakukan **sebelum** deploy pertama agar tidak ada jeda URL terbuka |
 | 3 | Buat proyek: `vercel link` dari folder proyek (atau impor dari Git bila Tahap B sudah jalan) | — |
-| 4 | Isi env (§9) untuk Preview dan Production: `DATA_CONTOH=1`, `SESI_PELACAKAN_RAHASIA`, `TRACKING_PEPPER` | Tandai **Sensitive**. Buat nilai dengan `openssl rand -base64 48` |
+| 4 | Isi env (§9) untuk Preview dan Production: `SESI_PELACAKAN_RAHASIA`, `TRACKING_PEPPER` (opsional `DATA_CONTOH=1` agar eksplisit) | Tandai **Sensitive**. Buat nilai dengan `openssl rand -base64 48` |
 | 5 | `vercel deploy` (preview), periksa, lalu `vercel deploy --prod` | — |
 | 6 | Undang peninjau sebagai **Viewer** (gratis) | Peninjau perlu akun Vercel |
 | 7 | Verifikasi (§5.3) | — |
@@ -200,7 +202,7 @@ Catatan platform: penghitung rate limit WAF **per region**, jendela maksimum 10 
 ### 8.1 Sebelum go-live
 
 - [ ] D1 (lokasi data) dan D5 (CSP) diputuskan dan diterapkan.
-- [ ] Env produksi: **`DATA_CONTOH` dihapus**; build produksi lulus dengan DB nyata.
+- [ ] Env produksi: **`DATA_CONTOH` dihapus**, `DATABASE_URL_PUBLIC` terisi; log build **tidak** memuat “ⓘ Sumber data: DATA CONTOH”.
 - [ ] AC-D7: bundle produksi tidak memuat data contoh dan teks “DATA CONTOH” (grep `.next` di CI).
 - [ ] Banner DRAF di halaman informasi sudah dicabut setelah teks disetujui; `src/lib/kontak.ts` terisi.
 - [ ] Backup DB harian aktif dan **uji pemulihan** berhasil (03 §9, A11).
@@ -230,7 +232,7 @@ Catatan platform: penghitung rate limit WAF **per region**, jendela maksimum 10 
 
 | Variabel | Development | Preview | Production | Keterangan |
 |---|---|---|---|---|
-| `DATA_CONTOH` | `1` | `1` (sampai DB preview siap) | `1` di Tahap A; **dihapus** saat go-live | Sumber data contoh |
+| `DATA_CONTOH` | opsional | opsional (`1` = eksplisit) | opsional di Tahap A; **dihapus** saat go-live | Tanpa nilai: data contoh selama `DATABASE_URL_PUBLIC` kosong (K3). `0` memaksa basis data |
 | `DATA_CONTOH_SKENARIO` | bebas | opsional (`ekstrem`, `kosong`, …) | — | Uji tampilan |
 | `SESI_PELACAKAN_RAHASIA` | nilai lokal | nilai sendiri | nilai sendiri, Sensitive | ≥ 32 karakter acak. **Wajib di Vercel** (K4) |
 | `TRACKING_PEPPER` | nilai lokal | nilai sendiri | nilai sendiri, Sensitive | Mengubahnya membuat semua Kode Akses lama tidak cocok → **jangan dirotasi** tanpa migrasi |
@@ -277,7 +279,7 @@ Variabel baris 5 dan seterusnya baru dibutuhkan di Tahap B–C. Tidak ada variab
 
 **Tahap A — bisa dimulai sekarang**
 - [ ] D2, D3, D4 diputuskan
-- [ ] Perbaikan kode §5.1 (K4, engines, `vercel.json`, banner)
+- [x] Perbaikan kode §5.1 (K4, engines, `vercel.json`, banner)
 - [ ] Protection aktif sebelum deploy pertama
 - [ ] Env Preview + Production diisi
 - [ ] Verifikasi §5.3

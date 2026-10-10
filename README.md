@@ -29,6 +29,14 @@ npm run test:unit   # uji fungsi murni (geometri, skala, state URL peta)
 npm run test:e2e    # Playwright memakai Chrome terpasang; membangun dan menjalankan server di port 3211
 ```
 
+## Deploy ke Vercel
+
+Rencana lengkap: [docs/perencanaan/07-deploy-vercel.md](docs/perencanaan/07-deploy-vercel.md). Ringkas untuk prototipe (Tahap A):
+
+1. Aktifkan **Deployment Protection → All Deployments + Vercel Authentication** sebelum deploy pertama. Prototipe memakai form tiruan yang membuang kiriman, jadi tidak boleh terbuka untuk publik.
+2. Isi env untuk Preview dan Production: `SESI_PELACAKAN_RAHASIA` (≥ 32 karakter, mis. `openssl rand -base64 48`) dan `TRACKING_PEPPER`. Build di Vercel sengaja gagal bila salah satunya kosong. Data contoh dipakai otomatis selama basis data belum dikonfigurasi; `DATA_CONTOH=1` boleh diisi agar eksplisit.
+3. Region fungsi sudah diset ke Singapura (`sin1`) lewat `vercel.json`.
+
 ## Data contoh
 
 Semua data di prototipe ini **sintetis**: tidak ada laporan, nama, atau unit nyata. Data contoh hanya dibaca di server (`import "server-only"`) dan selalu ditandai `dataContoh: true` di respons publik.
@@ -46,7 +54,7 @@ Pengaturan lewat variabel lingkungan:
 
 | Variabel | Nilai | Efek |
 |---|---|---|
-| `DATA_CONTOH` | `1` / `0` | Paksa memakai atau tidak memakai data contoh. Bawaan: aktif di `next dev`, nonaktif di produksi. |
+| `DATA_CONTOH` | `1` / `0` | Paksa memakai (`1`) atau tidak memakai (`0`) data contoh. Bawaan: data contoh selama `DATABASE_URL_PUBLIC` kosong, termasuk di `npm run build`/`npm start`; build mengumumkannya dengan baris “ⓘ Sumber data: DATA CONTOH”. |
 | `DATA_CONTOH_SKENARIO` | `normal` (bawaan), `kosong`, `sedikit`, `ekstrem`, `banyak-kategori`, `rentang-panjang` | Pilih skenario uji |
 | `SESI_PELACAKAN_RAHASIA` | ≥ 32 karakter acak | Kunci segel cookie sesi pelacakan. Wajib di produksi; mode contoh memakai kunci acak per proses |
 | `TRACKING_PEPPER` | string rahasia | Pepper HMAC Kode Akses dan hash IP pembatas percobaan |

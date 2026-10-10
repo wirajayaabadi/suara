@@ -17,7 +17,7 @@ import type { IsiSesi } from "@/server/pelacakan/sesi";
 
 async function dataContoh() {
   if (sumberData() !== "contoh") {
-    throw new Error("Sumber data pelacakan (basis data) belum dikonfigurasi. Set DATA_CONTOH=1 untuk prototipe.");
+    throw new Error("Sumber data pelacakan: basis data belum dibangun. Hapus DATA_CONTOH=0 atau DATABASE_URL_PUBLIC untuk memakai data contoh.");
   }
   const [{ KIRIMAN_CONTOH }, { KATEGORI_WB, KATEGORI_ASP }] = await Promise.all([
     import("@/server/data-contoh/kiriman"),

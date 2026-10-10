@@ -2,6 +2,7 @@
 
 import { randomBytes } from "node:crypto";
 import { SkemaKirimTiruan, type HasilKirim } from "@/lib/schemas/kiriman";
+import { pilihSumberData } from "@/lib/sumber-data";
 
 /*
  * Server Action TIRUAN untuk prototipe form (dok. 05 §6, tahap T2).
@@ -48,7 +49,7 @@ export async function kirimPengajuanTiruan(masukan: unknown): Promise<HasilKirim
   }
 
   // Simulasi galat server untuk uji tampilan: hanya di pengembangan atau mode data contoh.
-  const bolehSimulasi = process.env.NODE_ENV !== "production" || process.env.DATA_CONTOH === "1";
+  const bolehSimulasi = process.env.NODE_ENV !== "production" || pilihSumberData() === "contoh";
   if (bolehSimulasi && nilai.judul.includes("[uji-galat]")) {
     return {
       ok: false,
